@@ -50,8 +50,9 @@ class AVLTree<V extends Comparable<V>>
                 root = node;
                 header.parent = root;
                 header.right = root;
-            } else if (header.right == y) {
-                header.right = node;
+                root.parent = header;
+            } else if (header.left == y) {
+                header.left = node;
             } 
         } else {
             y.right = node;
@@ -65,7 +66,7 @@ class AVLTree<V extends Comparable<V>>
         // rebalance
         boolean rb = false;
         while (y != header && ! rb) {
-            if (y.left == node) {
+            if (y.value.compareTo(node.value) > 0) {
                 switch (y.bf) {
                     case Node.LH:
                         leftBalance(y);
@@ -386,9 +387,9 @@ class AVLTree<V extends Comparable<V>>
         if (node == null) return;
         printInorder(node.left);
         if (node.value != null) {
-            System.out.println(node.value + " ");
+            System.out.print(node.value + " ");
         } else {
-            System.out.println("<null> ");
+            System.out.print("<null> ");
         }
         printInorder(node.right);
     }
@@ -396,9 +397,9 @@ class AVLTree<V extends Comparable<V>>
     private void printPreorder(Node<V> node) {
         if (node == null) return;
         if (node.value != null) {
-            System.out.println(node.value + " ");
+            System.out.print(node.value + " ");
         } else {
-            System.out.println("<null> ");
+            System.out.print("<null> ");
         }
         printPreorder(node.left);
         printPreorder(node.right);
