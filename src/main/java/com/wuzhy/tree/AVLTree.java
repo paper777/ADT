@@ -27,7 +27,7 @@ class AVLTree<V extends Comparable<V>>
         return header.left == null ? null : header.left.value;
     }
 
-    public boolean insertUnique(V value) {
+    public boolean insert(V value) {
         Node<V> y = header;
         Node<V> x = root;
 
@@ -65,7 +65,7 @@ class AVLTree<V extends Comparable<V>>
         // rebalance
         boolean rb = false;
         while (y != header && ! rb) {
-            if (comp > 0) {
+            if (y.left == node) {
                 switch (y.bf) {
                     case Node.LH:
                         leftBalance(y);
@@ -195,10 +195,11 @@ class AVLTree<V extends Comparable<V>>
                 }
             }
         } else {
-            Node<V> next = getNext(node); // TODO
+            Node<V> next = getNext(node);
             delete(next.value);
             node.value = next.value;
         }
+        size --;
         return true;
     }
 
@@ -207,7 +208,7 @@ class AVLTree<V extends Comparable<V>>
         switch (l.bf) {
             case Node.LH: // LL style
                 node.bf = l.bf = Node.EH;
-                lrotate(node);
+                rrotate(node);
                 break;
 
             case Node.RH: // LR style
@@ -242,7 +243,7 @@ class AVLTree<V extends Comparable<V>>
         switch (r.bf) {
             case Node.RH: // RR style
                 node.bf = r.bf = Node.EH;
-                rrotate(node);
+                lrotate(node);
                 break;
             
             case Node.LH: // RL style
@@ -275,10 +276,24 @@ class AVLTree<V extends Comparable<V>>
 
     private Node<V> rrotate(Node<V> node) {
         Node<V> l = node.left;
+        boolean left = node.parent.left == node ? true : false;
+
         node.left = l.right;
-        l.right = node;
+        if (node.left != null) {
+            node.left.parent = node;
+        }
 
         l.parent = node.parent;
+        if (l.parent == header) {
+            header.parent = l;
+            root = l;
+        } else if (left) {
+            l.parent.left = l;
+        } else {
+            l.parent.right = l;
+        } 
+
+        l.right = node;
         node.parent = l;
 
         return l;
@@ -286,12 +301,25 @@ class AVLTree<V extends Comparable<V>>
 
     private Node<V> lrotate(Node<V> node) {
         Node<V> r = node.right;
+        boolean left = node.parent.left == node ? true : false;
+
         node.right = r.left;
-        r.left = node;
+        if (node.right != null) {
+            node.right.parent = node;
+        }
 
         r.parent = node.parent;
-        node.parent = r;
+        if (r.parent == header) {
+            header.parent = r;
+            root = r;
+        } else if (left) {
+            r.parent.left = r;
+        } else {
+            r.parent.right = r;
+        }
 
+        r.left = node;
+        node.parent = r;
         return r;
     }
 
