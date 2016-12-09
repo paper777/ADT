@@ -1,6 +1,7 @@
 package com.wuzhy.tree;
 
 import java.lang.Comparable;
+import java.lang.Exception;
 
 class AVLTree<V extends Comparable<V>>
 {
@@ -31,9 +32,15 @@ class AVLTree<V extends Comparable<V>>
     }
 
     public V next() {
-        Node<V> n = getNext(current);
-        current = n;
-        return n.value;
+        Node<V> n = null;
+        if (current == null) {
+            current = header.left;
+            n = header.left;
+        } else {
+            n = getNext(current);
+            current = n;
+        }
+        return n == null ? null : n.value;
     }
 
     // flush iterator
@@ -41,7 +48,7 @@ class AVLTree<V extends Comparable<V>>
         current = header.left;
     }
 
-    public V search(V value) {
+    public boolean contains(V value) {
         Node<V> y = header;
         Node<V> x = root;
 
@@ -56,7 +63,7 @@ class AVLTree<V extends Comparable<V>>
                 break;
             }
         }
-        return x != null ? x.value : null;
+        return x != null ? true : false;
     }
 
     public boolean insert(V value) {
@@ -194,10 +201,14 @@ class AVLTree<V extends Comparable<V>>
                 }
             }
         } // if leaf node
-        else if (node.left != null || node.right != null) {
+        else if (node.left != null && node.right == null
+                || node.left == null && node.right != null) {
             Node<V> parent = node.parent;
+            Node<V> child = node.left != null ? node.left : node.right;
             if (parent.left == node) {
-                parent.left = node.left;
+                parent.left = child;
+                child.parent = parent;
+
                 switch (parent.bf) {
                     case Node.EH:
                         parent.bf = Node.RH;
@@ -212,7 +223,9 @@ class AVLTree<V extends Comparable<V>>
                         break;
                 }
             } else {
-                parent.right = node.left;
+                parent.right = child;
+                child.parent = parent;
+
                 switch (parent.bf) {
                     case Node.EH:
                         parent.bf = Node.LH;
@@ -356,26 +369,28 @@ class AVLTree<V extends Comparable<V>>
         return r;
     }
 
-
-
-
     private Node<V> getNext(Node<V> current) {
         Node<V> p = current;
+        if (p == header.right) {
+            return null;
+        }
         if (p.right != null) {
             p = p.right;
-            while (p != null) {
+            while (p.left != null) {
                 p = p.left;
             }
             return p;
         } else {
-            Node<V> parent = p.parent;
-            while (parent != header && parent.left != p) {
-                parent = parent.parent;
+            while (p != header && p.value.compareTo(current.value) <= 0) {
+                p = p.parent;
             }
-            return parent;
+            if (p == header) {
+                return null;
+            }
+            return p;
         }
     }
-    
+
     public void printTree() {
         System.out.println("PreOrder:");
         printPreorder(root);
@@ -391,7 +406,7 @@ class AVLTree<V extends Comparable<V>>
         System.out.println();
     }
 
-    private void init() {
+    protected void init() {
         this.header = new Node<V>();
         this.header.left 
             = this.header.right 
@@ -461,8 +476,11 @@ class AVLTree<V extends Comparable<V>>
             this.value = value;
         }
 
-        public int compareTo(Node<V> other) {
-            return this.value.compareTo(other.value);
+        public int compareTo(Node<V> other) throws Exception {
+            if (this.value != null) {
+                return this.value.compareTo(other.value);
+            }
+            throw new Exception("Null node value Exception.");
         }
 
         public boolean isLeaf() {
