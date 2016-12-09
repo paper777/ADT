@@ -9,7 +9,10 @@ class AVLTree<V extends Comparable<V>>
 
     protected Node<V> root; // first node 
 
+    protected Node<V> current; // simple iterator
+
     protected int size;
+
 
     public AVLTree() {
         init();
@@ -25,6 +28,35 @@ class AVLTree<V extends Comparable<V>>
 
     public V getMinimum() {
         return header.left == null ? null : header.left.value;
+    }
+
+    public V next() {
+        Node<V> n = getNext(current);
+        current = n;
+        return n.value;
+    }
+
+    // flush iterator
+    public void flush() {
+        current = header.left;
+    }
+
+    public V search(V value) {
+        Node<V> y = header;
+        Node<V> x = root;
+
+        while (x != null) {
+            y = x;
+            int comp = x.value.compareTo(value);
+            if (comp > 0) {
+                x = x.left;
+            } else if (comp < 0) {
+                x = x.right;
+            } else {
+                break;
+            }
+        }
+        return x != null ? x.value : null;
     }
 
     public boolean insert(V value) {
@@ -325,23 +357,7 @@ class AVLTree<V extends Comparable<V>>
     }
 
 
-    private Node<V> search(V value) {
-        Node<V> y = header;
-        Node<V> x = root;
 
-        while (x != null) {
-            y = x;
-            int comp = x.value.compareTo(value);
-            if (comp > 0) {
-                x = x.left;
-            } else if (comp < 0) {
-                x = x.right;
-            } else {
-                break;
-            }
-        }
-        return x;
-    }
 
     private Node<V> getNext(Node<V> current) {
         Node<V> p = current;
@@ -381,6 +397,7 @@ class AVLTree<V extends Comparable<V>>
             = this.header.right 
             = this.header
             ;
+        this.current = this.header.left;
     }
 
     private void printInorder(Node<V> node) {
