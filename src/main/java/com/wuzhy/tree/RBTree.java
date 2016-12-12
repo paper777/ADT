@@ -6,7 +6,7 @@ import java.lang.Comparable;
 /**
  * Created by also on 2016/12/9.
  */
-public class RBTree <V extends Comparable<V>> {
+class RBTree<V extends Comparable<V>> {
 
     protected Node<V> header;
 
@@ -25,11 +25,11 @@ public class RBTree <V extends Comparable<V>> {
     }
 
     public V getMinimum() {
-        return this.header.left != null ? (V) this.header.left : null;
+        return this.header.left != null ? (V) this.header.left.value : null;
     }
 
     public V getMaximum() {
-        return this.header.right != null ? (V) this.header.right : null;
+        return this.header.right != null ? (V) this.header.right.value : null;
     }
 
     public boolean contains(V value) {
@@ -122,8 +122,9 @@ public class RBTree <V extends Comparable<V>> {
                     } else {
                         parent.parent.color = Node.RED;
                         p.color = Node.BLACK;
+                        Node<V> g = parent.parent;
                         lrotate(parent);
-                        rrotate(parent);
+                        rrotate(g);
                     }
                 }
 
@@ -141,8 +142,9 @@ public class RBTree <V extends Comparable<V>> {
                     } else {
                         parent.parent.color = Node.RED;
                         p.color = Node.BLACK;
+                        Node<V> g = parent.parent;
                         rrotate(parent);
-                        lrotate(parent);
+                        lrotate(g);
                     }
                 }
             }
